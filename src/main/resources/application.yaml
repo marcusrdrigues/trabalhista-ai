@@ -1,3 +1,67 @@
+server:
+  port: 8081
+
 spring:
+  config:
+    import: optional:file:.env[.properties]
+
   application:
     name: trabalhista-ai
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/bd_trabalhista
+    username: coti
+    password: coti
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27018/bd_trabalhista_memoria
+
+  mail:
+    host: localhost
+    port: 1025
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4.1-mini
+          temperature: 0.2
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        dimensions: 1536
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+app:
+  pricing:
+    input-per-million: 0.40
+    output-per-million: 1.60
+  mail:
+    from: atendimento@coti.local

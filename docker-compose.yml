@@ -1,0 +1,61 @@
+services:
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: trabalhista-postgres
+    environment:
+      POSTGRES_DB: bd_trabalhista
+      POSTGRES_USER: coti
+      POSTGRES_PASSWORD: coti
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coti -d bd_trabalhista"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    container_name: trabalhista-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@coti.com.br
+      PGADMIN_DEFAULT_PASSWORD: coti
+    ports:
+      - "5051:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  mongodb:
+    image: mongo:7
+    container_name: trabalhista-mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express:1
+    container_name: trabalhista-mongo-express
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: coti
+    ports:
+      - "8085:8081"
+    depends_on:
+      - mongodb
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: trabalhista-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  postgres_data:
+  mongo_data:
